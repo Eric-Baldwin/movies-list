@@ -5,7 +5,7 @@ const pgp = require('pg-promise')();
 const app = express();
 const PORT = 3002;
 
-// Database connection settings
+
 const dbConfig = {
   host: 'localhost',
   port: 5432,
@@ -16,12 +16,10 @@ const dbConfig = {
 
 const db = pgp(dbConfig);
 
-// Middleware
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-// Fetch movies
 app.get('/movies', async (req, res) => {
   try {
     const movies = await db.any('SELECT * FROM movies;');
@@ -31,7 +29,7 @@ app.get('/movies', async (req, res) => {
   }
 });
 
-// Add movies
+
 app.post('/movies', async (req, res) => {
   try {
     const { title } = req.body;
@@ -45,7 +43,13 @@ app.post('/movies', async (req, res) => {
   }
 });
 
-// Start the server
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
+});
+
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
