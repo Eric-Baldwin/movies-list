@@ -4,18 +4,20 @@
 module.exports = {
 
   development: {
-    client: 'pg',
+    client: 'postgresql',
     connection: {
-      host: '127.0.0.1',
       database: 'movie_db',
       user: 'postgres',
-      password: 'password'
+      password: 'password',
+      host: 'localhost',
+      port: 5432
+    },
+    pool: {
+      min: 2,
+      max: 10
     },
     migrations: {
-      directory: './migrations'
-    },
-    seeds: {
-      directory: './seeds'
+      tableName: 'knex_migrations'
     }
   },
 

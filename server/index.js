@@ -1,54 +1,40 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const pgp = require('pg-promise')();
+const knexConfig = require('./knexfile').development;
+const knex = require('knex')(knexConfig);
 
 const app = express();
 const PORT = 3002;
 
-
-const dbConfig = {
-  host: 'localhost',
-  port: 5432,
-  database: 'movie_db',
-  user: 'postgres',
-  password: 'password'
-};
-
-const db = pgp(dbConfig);
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/movies', async (req, res) => {
+app.get('/movies', async (req, res, next) => {
   try {
-    const movies = await db.any('SELECT * FROM movies;');
+    const movies = await knex.select('*').from('movies');
     res.json(movies);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    next(err);
   }
 });
 
-
-app.post('/movies', async (req, res) => {
+app.post('/movies', async (req, res, next) => {
   try {
     const { title } = req.body;
     if (!title) {
       return res.status(400).json({ error: "The 'title' field is required." });
     }
-    const movie = await db.one('INSERT INTO movies(title) VALUES($1) RETURNING *;', [title]);
+    const [movie] = await knex('movies').insert({ title }).returning('*');
     res.json(movie);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 });
-
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something went wrong!');
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
