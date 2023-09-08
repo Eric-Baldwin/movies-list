@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-const movies = [
-  {title: 'Mean Girls'},
-  {title: 'Hackers'},
-  {title: 'The Grey'},
-  {title: 'Sunshine'},
-  {title: 'Ex Machina'}
-];
-
 function App() {
+  const [movies, setMovies] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:3002/movies')
+      .then(response => response.json())
+      .then(data => setMovies(data))
+      .catch(error => console.error('Error fetching data:', error));
+  }, []);
+
   return (
     <div className="App">
       <h1>Movie List</h1>
@@ -22,6 +23,5 @@ function App() {
     </div>
   );
 }
-
 
 export default App;
